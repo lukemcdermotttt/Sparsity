@@ -9,17 +9,16 @@ set_seed()
 def parse_args():
     parser = argparse.ArgumentParser(description="Prune a model on CIFAR-10.")
     #parser.add_argument("--config-file", default="configs/train_config.py")
-    parser.add_argument("--batch_size", type=int, default=128)
-    parser.add_argument("--lr", type=float, default=1e-3)
-    parser.add_argument("--num_epochs", type=int, default=200)
+    parser.add_argument("--batch_size", type=int, default=256)
+    parser.add_argument("--lr", type=float, default=1e-2)
+    parser.add_argument("--num_epochs", type=int, default=100)
     parser.add_argument("--model", type=str, default='resnet-18', 
                         choices=['resnet-18', 'mlp_mixer', 'convnext'])
     parser.add_argument("--prune_method", type=str, default='lottery_ticket_rewinding', 
                         choices=['lottery_ticket_rewinding', 
                                 'early_training_rewinding',
                                 'learning_rate_rewinding',
-                                'delta_pruning',
-                                'delta_pruning_no_rewinding'])
+                                'delta_pruning'])
 
     parser.add_argument("--save_dir", type=str)
     parser.add_argument("--num_prune_iters", type=int, default=40)

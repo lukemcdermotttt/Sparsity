@@ -1,9 +1,12 @@
-from Sparsity.models.resnet import *
-from Sparsity.models.convnext import * 
+from models.resnet import *
+from models.convnext import * 
+from models.mlp_mixer import MLPMixer
 from utils import *
-from Sparsity.models.mlp_mixer import MLPMixer
 import torchvision.transforms as transforms
 import torchvision
+
+#TODO: CHANGE THIS TO THE DIRECTORY OF YOUR EXPERIMENT
+experiment = 'rn18_delta'
 
 #Hyperparameters
 batch_size = 128
@@ -18,8 +21,6 @@ test_dataset = torchvision.datasets.CIFAR10(root = './data', train = False, tran
 train_loader = torch.utils.data.DataLoader(dataset = train_dataset, batch_size = batch_size, shuffle = True)
 test_loader = torch.utils.data.DataLoader(dataset = test_dataset, batch_size = batch_size)
 
-
-experiment = 'mlp_lrr'
 accuracies = []
 for i in range(41):
     if 'rn18' in experiment:
@@ -27,7 +28,6 @@ for i in range(41):
     else:
         model = MLPMixer(in_channels=3, image_size=32, patch_size=4, num_classes=10,
                         dim=128, depth=8, token_dim=256, channel_dim=512).to(device)
-    
 
     if 'delta' in experiment:
         replace_with_delta(model)
@@ -41,8 +41,12 @@ for i in range(41):
         prune.global_unstructured(get_parameters_to_prune(model, skip_last=True), pruning_method=prune.L1Unstructured,amount=0)
 
     
-    
     print(f'PRUNE ITERATION {i} AT SPARSITY {100*(1-.8**i):.5f}%')
     acc = evaluate(model, test_loader, device)
+
+    with open(f'/home/archy2/luke/Sparsity/weights/{experiment}/accuracies.txt', "a") as file:
+        file.write(f'PRUNE ITERATION {i} AT SPARSITY {100*(1-.8**i):.5f}%\n')
+        file.write(f'Test Accuracy: {acc}\n\n')
+
     accuracies.append(acc)
     torch.save(torch.tensor(accuracies), f'/home/archy2/luke/Sparsity/weights/{experiment}/accuracies.pt')
